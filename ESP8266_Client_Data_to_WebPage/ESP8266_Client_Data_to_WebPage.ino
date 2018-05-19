@@ -24,12 +24,15 @@
 enum MODE {ON, OFF};
 int DEBUG_MODE = OFF;
 int Number_Of_Repetition = 0;
+
 /*WiFi Credentials*/
 char *SSID = "BJ REDDY 1";
 char *PASSWORD = "96422312131";
+
 String URL = "http://blacksheeprunner.000webhostapp.com/agriculture/temp.php?temp=+";
 int Temperature = 0;
 String Data = "";
+
 ESP8266WiFiMulti WiFiMulti;
 
 void setup()
@@ -58,7 +61,7 @@ void setup()
   WiFi.mode(WIFI_STA);
   WiFiMulti.addAP(SSID, PASSWORD);
 
-}
+}/*setup*/
 
 void loop()
 {
@@ -66,25 +69,17 @@ void loop()
   Temperature = (analogRead(A0) * 0.48); // Temperature Conversion see link --> http://www.instructables.com/id/ARDUINO-TEMPERATURE-SENSOR-LM35/
   Data = String(Temperature);
   (Data == Data_Prev) ? Number_Of_Repetition += 1 :  Number_Of_Repetition = 0;
-
   if ( DEBUG_MODE == ON )
     Serial.printf(">>Temperature Value = %d\n\r", Temperature);
-  // Avoid from updating Same data
-  ( Number_Of_Repetition < 3 ) ? updateData() : Nop();
-
-
-
-
-
-
+  ( Number_Of_Repetition < 3 ) ? updateData() : NoUpdate();// Avoid from updating Same data
   delay(3000); // waiting time for next cycle
-}
+}/*loop*/
 
 void updateData()
 {
-  // wait for WiFi connection
-  int stat = WiFiMulti.run();// Checking status of WiFi connection
-  if (( stat == WL_CONNECTED))
+
+  int stat = WiFiMulti.run();   // Checking status of WiFi connection
+  if (( stat == WL_CONNECTED))  // wait for WiFi connection
   {
 
     HTTPClient http;
@@ -92,6 +87,7 @@ void updateData()
     {
       Serial.print(">>[HTTP] begin...\n");
     }
+
     //http://blacksheeprunner.000webhostapp.com/agriculture/temp.php?temp=+30
 
     http.begin(URL + Data); //HTTP url
@@ -125,10 +121,12 @@ void updateData()
     Serial.print(">>WiFi not connected! run returned: ");
     Serial.println(stat);
   }
-}
-void Nop()
+}/*updateData*/
+
+void No_Update()
 {
   if ( DEBUG_MODE == ON )
     Serial.println(">>Same Data Found Update Cancelled");
-}
+}/*No_Update*/
+
 
